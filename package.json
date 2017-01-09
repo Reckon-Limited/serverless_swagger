@@ -1,0 +1,24 @@
+{
+  "name": "serverless_swagger",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/es6-promise": "^0.0.32",
+    "@types/js-yaml": "^3.5.29",
+    "@types/lodash": "^4.14.45",
+    "@types/node": "^6.0.58",
+    "@types/sinon": "^1.16.34",
+    "chai": "^3.5.0",
+    "js-yaml": "^3.7.0",
+    "lodash": "^4.17.3",
+    "mocha": "^3.2.0",
+    "mocha-typescript": "^1.0.15",
+    "sinon": "^1.17.7",
+    "typescript": "^2.1.4"
+  },
+  "scripts": {
+    "dev-test-watch": "mocha-typescript-watch"
+  }
+}
