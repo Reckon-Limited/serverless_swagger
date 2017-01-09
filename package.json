@@ -1,8 +1,12 @@
 {
   "name": "serverless_swagger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Reckon-Limited/serverless_swagger"
+  },
   "dependencies": {
     "@types/chai": "^3.4.34",
     "@types/es6-promise": "^0.0.32",
