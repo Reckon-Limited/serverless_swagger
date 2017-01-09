@@ -4,7 +4,15 @@ Maps swagger configuration to serverless handlers.
 
 ## Installation ##
 
-Inside your serverless project:
+If you don't have a serverless project, create one now:
+
+```
+sls create -t aws-nodejs --path MyService
+cd MyService
+yarn init
+```
+
+Inside your serverless project directory:
 
 ```
 yarn add swagger_serverless
