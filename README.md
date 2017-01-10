@@ -35,7 +35,21 @@ custom:
   swagger_file: swagger.yml
 ```
 
-Functions are mapped by parsing the summary description in the swagger spec to a function name in serverless.yml.
+## Generation ##
+
+A complete set of JS handlers and the appropriate serverless.yml configuration can be generated
+
+```
+sls swagger
+```
+Existing files should not be overwritten, meaning that the swagger can be updated and new functions generated without losing customisations.
+
+
+## Mapping ##
+
+At deploy, each function will be mapped to API Gateway events based on the swagger specification.
+
+Functions are mapped by parsing the path and method in the swagger spec to a function name in serverless.yml.
 
 For example, given the following `serverless.yml` and `swagger.yml` definitions
 ```
