@@ -22,7 +22,6 @@ var Mapper = (function () {
                 };
             });
         });
-        console.log(functions);
         return functions;
     };
     Mapper.prototype.map = function () {
@@ -51,7 +50,10 @@ var Mapper = (function () {
     };
     Mapper.prototype.generateHandler = function (name) {
         var file = this.path + "/" + name + ".js";
-        if (!fs.existsSync(file)) {
+        if (fs.existsSync(file)) {
+            this.log("Function handler exists " + name);
+        }
+        else {
             this.log("Creating function handler " + name);
             var handler = this.functionHandler(name);
             fs.writeFileSync(file, handler);

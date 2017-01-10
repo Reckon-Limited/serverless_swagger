@@ -30,7 +30,6 @@ export class Mapper {
         };
       })
     });
-    console.log(functions);
     return functions;
   }
 
@@ -67,7 +66,9 @@ export class Mapper {
   generateHandler(name: string) {
     let file = `${this.path}/${name}.js`
 
-    if (!fs.existsSync(file)) {
+    if (fs.existsSync(file)) {
+      this.log(`Function handler exists ${name}`);
+    } else {
       this.log(`Creating function handler ${name}`);
       let handler = this.functionHandler(name);
       fs.writeFileSync(file, handler);
