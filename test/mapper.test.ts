@@ -12,7 +12,7 @@ import { Mapper } from '../mapper';
 
 const swagger = {
   paths: {
-    '/blah/vtha/id': {
+    '/blah/vtha/{id}': {
       post: {
         summary: "Get blah vtha by id"
       }
@@ -26,7 +26,7 @@ const swagger = {
 }
 
 const functions = {
-  blahVthaIdPost: {
+  postBlahVthaId: {
     handler: 'blah_vtha_id_post.main',
     events: []
   },
@@ -37,8 +37,8 @@ const functions = {
 }
 
 const expected = {
-  blahVthaIdPost: {
-    handler: 'blahVthaIdPost/handler.main',
+  postBlahVthaId: {
+    handler: 'postBlahVthaId/handler.main',
     events: [
       {
         http: {
@@ -66,13 +66,13 @@ describe('Helpers', () => {
 
     @test functionName(){
       let result = this.mapper.functionName('blah','get')
-      expect(result).to.eq('blahGet');
+      expect(result).to.eq('getBlah');
 
       result = this.mapper.functionName('blah/{id}','get')
-      expect(result).to.eq('blahIdGet');
+      expect(result).to.eq('getBlahId');
 
       result = this.mapper.functionName('{id}/blah/vtha/{id}','POST')
-      expect(result).to.eq('idBlahVthaIdPost');
+      expect(result).to.eq('postIdBlahVthaId');
     }
 
     @test generateEvent(){
@@ -106,19 +106,19 @@ describe('Generate javascript handler', () => {
 
     @test generateHandlerFile(){
       this.mapper.generate();
-      let file = './output/blahVthaIdPost.js';
+      let file = './output/postBlahVthaId.js';
       let result = fs.existsSync(file);
       expect(result).to.eq(true);
     }
 
     @test generateHandlerLength(){
       let result = this.mapper.generate();
-      expect(result).to.have.property('blahVthaIdPost');
+      expect(result).to.have.property('postBlahVthaId');
     }
 
     @test generateHandler(){
       let result:any = this.mapper.generate();
-      expect(result.blahVthaIdPost.handler).to.eq('blahVthaIdPost.main');
+      expect(result.postBlahVthaId.handler).to.eq('postBlahVthaId.main');
     }
   }
 });
@@ -134,7 +134,7 @@ describe('map swagger to http events', () => {
     }
 
     @test mapBlahVthaId(){
-      let fn:any = functions.blahVthaIdPost;
+      let fn:any = functions.postBlahVthaId;
       expect(fn.events).to.not.be.empty;
     }
 
@@ -144,13 +144,13 @@ describe('map swagger to http events', () => {
     }
 
     @test hasPost(){
-      let fn:any = functions.blahVthaIdPost;
+      let fn:any = functions.postBlahVthaId;
       expect(fn.events[0].http.method).to.eq('post');
     }
 
     @test hasPath(){
-      let fn:any = functions.blahVthaIdPost;
-      expect(fn.events[0].http.path).to.eq('/blah/vtha/id');
+      let fn:any = functions.postBlahVthaId;
+      expect(fn.events[0].http.path).to.eq('/blah/vtha/{id}');
     }
   }
 });

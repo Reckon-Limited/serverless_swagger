@@ -78,7 +78,9 @@ export class Mapper {
   }
 
   functionName(url:string, method: string) {
-    return _.camelCase(`${url}${_.upperFirst(method)}`)
+    let m = _.upperFirst(method);
+    // let n = url.replace(/{(.*?)}/g, '');
+    return _.camelCase(`${m} ${url}`)
   }
 
   functionHandler(name: string) {

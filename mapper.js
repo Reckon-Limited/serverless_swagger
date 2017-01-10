@@ -61,7 +61,9 @@ var Mapper = (function () {
         return name + ".main";
     };
     Mapper.prototype.functionName = function (url, method) {
-        return _.camelCase("" + url + _.upperFirst(method));
+        var m = _.upperFirst(method);
+        // let n = url.replace(/{(.*?)}/g, '');
+        return _.camelCase(m + " " + url);
     };
     Mapper.prototype.functionHandler = function (name) {
         return "\n    module.exports.main = (event, context, callback) => {\n      const response = {\n        statusCode: 200,\n        body: JSON.stringify({\n          name: '" + name + "'\n        }),\n      };\n      callback(null, response);\n    };";

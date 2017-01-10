@@ -13,7 +13,7 @@ var mapper_1 = require("../mapper");
 /// <reference path="describe.d.ts" />
 var swagger = {
     paths: {
-        '/blah/vtha/id': {
+        '/blah/vtha/{id}': {
             post: {
                 summary: "Get blah vtha by id"
             }
@@ -26,7 +26,7 @@ var swagger = {
     }
 };
 var functions = {
-    blahVthaIdPost: {
+    postBlahVthaId: {
         handler: 'blah_vtha_id_post.main',
         events: []
     },
@@ -36,8 +36,8 @@ var functions = {
     }
 };
 var expected = {
-    blahVthaIdPost: {
-        handler: 'blahVthaIdPost/handler.main',
+    postBlahVthaId: {
+        handler: 'postBlahVthaId/handler.main',
         events: [
             {
                 http: {
@@ -62,11 +62,11 @@ describe('Helpers', function () {
         };
         PluginTest.prototype.functionName = function () {
             var result = this.mapper.functionName('blah', 'get');
-            chai_1.expect(result).to.eq('blahGet');
+            chai_1.expect(result).to.eq('getBlah');
             result = this.mapper.functionName('blah/{id}', 'get');
-            chai_1.expect(result).to.eq('blahIdGet');
+            chai_1.expect(result).to.eq('getBlahId');
             result = this.mapper.functionName('{id}/blah/vtha/{id}', 'POST');
-            chai_1.expect(result).to.eq('idBlahVthaIdPost');
+            chai_1.expect(result).to.eq('postIdBlahVthaId');
         };
         PluginTest.prototype.generateEvent = function () {
             var result = this.mapper.generateEvent('blah/{id}', 'get');
@@ -112,17 +112,17 @@ describe('Generate javascript handler', function () {
         };
         PluginTest.prototype.generateHandlerFile = function () {
             this.mapper.generate();
-            var file = './output/blahVthaIdPost.js';
+            var file = './output/postBlahVthaId.js';
             var result = fs.existsSync(file);
             chai_1.expect(result).to.eq(true);
         };
         PluginTest.prototype.generateHandlerLength = function () {
             var result = this.mapper.generate();
-            chai_1.expect(result).to.have.property('blahVthaIdPost');
+            chai_1.expect(result).to.have.property('postBlahVthaId');
         };
         PluginTest.prototype.generateHandler = function () {
             var result = this.mapper.generate();
-            chai_1.expect(result.blahVthaIdPost.handler).to.eq('blahVthaIdPost.main');
+            chai_1.expect(result.postBlahVthaId.handler).to.eq('postBlahVthaId.main');
         };
         return PluginTest;
     }());
@@ -148,7 +148,7 @@ describe('map swagger to http events', function () {
             this.mapper.map();
         };
         PluginTest.prototype.mapBlahVthaId = function () {
-            var fn = functions.blahVthaIdPost;
+            var fn = functions.postBlahVthaId;
             chai_1.expect(fn.events).to.not.be.empty;
         };
         PluginTest.prototype.mapVtha = function () {
@@ -156,12 +156,12 @@ describe('map swagger to http events', function () {
             chai_1.expect(fn.events).to.be.empty;
         };
         PluginTest.prototype.hasPost = function () {
-            var fn = functions.blahVthaIdPost;
+            var fn = functions.postBlahVthaId;
             chai_1.expect(fn.events[0].http.method).to.eq('post');
         };
         PluginTest.prototype.hasPath = function () {
-            var fn = functions.blahVthaIdPost;
-            chai_1.expect(fn.events[0].http.path).to.eq('/blah/vtha/id');
+            var fn = functions.postBlahVthaId;
+            chai_1.expect(fn.events[0].http.path).to.eq('/blah/vtha/{id}');
         };
         return PluginTest;
     }());
