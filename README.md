@@ -44,6 +44,11 @@ sls swagger
 ```
 Existing files should not be overwritten, meaning that the swagger can be updated and new functions generated without losing customisations.
 
+Generated files can be output to a specified directory using the `--output` flag and a destination directory (which must exist).
+
+```
+sls swagger --output output
+```
 
 ## Mapping ##
 
