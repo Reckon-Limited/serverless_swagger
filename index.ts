@@ -2,8 +2,9 @@ import _ = require('lodash');
 import fs   = require('fs');
 import yaml = require('js-yaml');
 
-import { Mapper } from './mapper'
 import { Serverless, Command } from './serverless';
+
+import { generate, map, bindLog, Definition } from './generator';
 
 class ServerlessSwaggerPlugin {
 
@@ -16,7 +17,9 @@ class ServerlessSwaggerPlugin {
   constructor(serverless: Serverless, options: any) {
     this.serverless = serverless;
     this.provider = 'aws';
-    this.swagger = this.load();
+    this.swagger = this.loadSwagger();
+
+    bindLog(this.log)
 
     this.commands = {
       "swagger": {
@@ -34,42 +37,29 @@ class ServerlessSwaggerPlugin {
   generate = () => {
     this.log('generate');
 
-    let mapper = new Mapper(this.swagger, this.serverless.service.functions, this.outputPath, this.log);
-    let functions = mapper.generate();
+    let definitions = generate(this.swagger.paths, this.namespace, this.outputPath);
 
-    let config = this.loadServerless()
 
-    _.merge(config.functions, functions);
-
-    this.writeServerless(config)
+    this.writeSlsFunctions(definitions)
   }
 
   run = () => {
-    this.log('Run');
-
-    let mapper = new Mapper(this.swagger, this.serverless.service.functions, this.outputPath, this.log);
-    mapper.map();
-
+    this.log('Mapping Function Definitions');
+    let definitions = map(this.swagger.paths, this.serverless.service.functions);
+    this.serverless.service.functions = definitions
+    console.log(JSON.stringify(definitions));
   }
 
   log = (msg: string) => {
     this.serverless.cli.log(msg);
   }
 
-  load() {
+  loadSwagger() {
     if (this.hasSwaggerFile()) {
       return yaml.safeLoad(fs.readFileSync(this.swaggerFile, 'utf8'));
     } else {
       return {}
     }
-  }
-
-  loadServerless() {
-    return yaml.safeLoad(fs.readFileSync(this.serverlessFile, 'utf8'));
-  }
-
-  writeServerless(obj: any) {
-    return fs.writeFileSync('serverless.yml', yaml.safeDump(obj));
   }
 
   get swaggerFile() {
@@ -79,6 +69,10 @@ class ServerlessSwaggerPlugin {
 
   get serverlessFile() {
     return `${this.serverless.config.servicePath}/serverless.yml`;
+  }
+
+  get namespace() {
+    return this.serverless.processedInput.options.output || ''
   }
 
   get outputPath() {
@@ -92,6 +86,18 @@ class ServerlessSwaggerPlugin {
   hasSwaggerFile() {
     return fs.existsSync(this.swaggerFile);
   }
+
+  writeSlsFunctions(definitions: {[fn:string]: Definition}) {
+    let config = this.loadSls()
+    _.merge(config.functions, definitions);
+
+    fs.writeFileSync('serverless.yml', yaml.safeDump(config));
+  }
+
+  loadSls() {
+    return yaml.safeLoad(fs.readFileSync(this.serverlessFile, 'utf8'));
+  }
+
 }
 
 export = ServerlessSwaggerPlugin;

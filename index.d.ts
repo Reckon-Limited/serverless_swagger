@@ -1,4 +1,5 @@
 import { Serverless } from './serverless';
+import { Definition } from './generator';
 declare class ServerlessSwaggerPlugin {
     private provider;
     private serverless;
@@ -9,12 +10,15 @@ declare class ServerlessSwaggerPlugin {
     generate: () => void;
     run: () => void;
     log: (msg: string) => void;
-    load(): any;
-    loadServerless(): any;
-    writeServerless(obj: any): void;
+    loadSwagger(): any;
     readonly swaggerFile: string;
     readonly serverlessFile: string;
+    readonly namespace: any;
     readonly outputPath: string;
     hasSwaggerFile(): boolean;
+    writeSlsFunctions(definitions: {
+        [fn: string]: Definition;
+    }): void;
+    loadSls(): any;
 }
 export = ServerlessSwaggerPlugin;

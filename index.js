@@ -2,29 +2,28 @@
 var _ = require("lodash");
 var fs = require("fs");
 var yaml = require("js-yaml");
-var mapper_1 = require("./mapper");
+var generator_1 = require("./generator");
 var ServerlessSwaggerPlugin = (function () {
     function ServerlessSwaggerPlugin(serverless, options) {
         var _this = this;
         this.generate = function () {
             _this.log('generate');
-            var mapper = new mapper_1.Mapper(_this.swagger, _this.serverless.service.functions, _this.outputPath, _this.log);
-            var functions = mapper.generate();
-            var config = _this.loadServerless();
-            _.merge(config.functions, functions);
-            _this.writeServerless(config);
+            var definitions = generator_1.generate(_this.swagger.paths, _this.namespace, _this.outputPath);
+            _this.writeSlsFunctions(definitions);
         };
         this.run = function () {
-            _this.log('Run');
-            var mapper = new mapper_1.Mapper(_this.swagger, _this.serverless.service.functions, _this.outputPath, _this.log);
-            mapper.map();
+            _this.log('Mapping Function Definitions');
+            var definitions = generator_1.map(_this.swagger.paths, _this.serverless.service.functions);
+            _this.serverless.service.functions = definitions;
+            console.log(JSON.stringify(definitions));
         };
         this.log = function (msg) {
             _this.serverless.cli.log(msg);
         };
         this.serverless = serverless;
         this.provider = 'aws';
-        this.swagger = this.load();
+        this.swagger = this.loadSwagger();
+        generator_1.bindLog(this.log);
         this.commands = {
             "swagger": {
                 usage: 'Build an ECS cluster',
@@ -36,19 +35,13 @@ var ServerlessSwaggerPlugin = (function () {
             'swagger:run': this.generate,
         };
     }
-    ServerlessSwaggerPlugin.prototype.load = function () {
+    ServerlessSwaggerPlugin.prototype.loadSwagger = function () {
         if (this.hasSwaggerFile()) {
             return yaml.safeLoad(fs.readFileSync(this.swaggerFile, 'utf8'));
         }
         else {
             return {};
         }
-    };
-    ServerlessSwaggerPlugin.prototype.loadServerless = function () {
-        return yaml.safeLoad(fs.readFileSync(this.serverlessFile, 'utf8'));
-    };
-    ServerlessSwaggerPlugin.prototype.writeServerless = function (obj) {
-        return fs.writeFileSync('serverless.yml', yaml.safeDump(obj));
     };
     Object.defineProperty(ServerlessSwaggerPlugin.prototype, "swaggerFile", {
         get: function () {
@@ -61,6 +54,13 @@ var ServerlessSwaggerPlugin = (function () {
     Object.defineProperty(ServerlessSwaggerPlugin.prototype, "serverlessFile", {
         get: function () {
             return this.serverless.config.servicePath + "/serverless.yml";
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ServerlessSwaggerPlugin.prototype, "namespace", {
+        get: function () {
+            return this.serverless.processedInput.options.output || '';
         },
         enumerable: true,
         configurable: true
@@ -79,6 +79,14 @@ var ServerlessSwaggerPlugin = (function () {
     });
     ServerlessSwaggerPlugin.prototype.hasSwaggerFile = function () {
         return fs.existsSync(this.swaggerFile);
+    };
+    ServerlessSwaggerPlugin.prototype.writeSlsFunctions = function (definitions) {
+        var config = this.loadSls();
+        _.merge(config.functions, definitions);
+        fs.writeFileSync('serverless.yml', yaml.safeDump(config));
+    };
+    ServerlessSwaggerPlugin.prototype.loadSls = function () {
+        return yaml.safeLoad(fs.readFileSync(this.serverlessFile, 'utf8'));
     };
     return ServerlessSwaggerPlugin;
 }());
