@@ -7,10 +7,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 var mocha_typescript_1 = require("mocha-typescript");
 var chai_1 = require("chai");
-var fs = require("fs");
-var execSync = require('child_process').execSync;
-var mapper_1 = require("../mapper");
+var fn = require("../generator");
 /// <reference path="describe.d.ts" />
+fn.bindLog(console.log);
 var swagger = {
     paths: {
         '/blah/vtha/{id}': {
@@ -27,11 +26,15 @@ var swagger = {
 };
 var functions = {
     postBlahVthaId: {
-        handler: 'blah_vtha_id_post.main',
-        events: []
+        handler: 'postBlahVthaId.main',
+        events: [
+            {
+                http: 'blah'
+            }
+        ]
     },
     vthaGet: {
-        handler: 'vtha_get.main',
+        handler: 'vthaGet.main',
         events: []
     }
 };
@@ -48,136 +51,49 @@ var expected = {
         ]
     }
 };
-describe('Helpers', function () {
-    var PluginTest = (function () {
-        function PluginTest() {
-        }
-        PluginTest.prototype.before = function () {
-            this.mapper = new mapper_1.Mapper(swagger, functions, './output', console.log);
-        };
-        PluginTest.prototype.functionHandler = function () {
-            var result = this.mapper.functionHandler('blahGet');
-            chai_1.expect(result).to.include('module.exports.main');
-            chai_1.expect(result).to.include("name: 'blahGet'");
-        };
-        PluginTest.prototype.functionName = function () {
-            var result = this.mapper.functionName('blah', 'get');
-            chai_1.expect(result).to.eq('getBlah');
-            result = this.mapper.functionName('blah/{id}', 'get');
-            chai_1.expect(result).to.eq('getBlahId');
-            result = this.mapper.functionName('{id}/blah/vtha/{id}', 'POST');
-            chai_1.expect(result).to.eq('postIdBlahVthaId');
-        };
-        PluginTest.prototype.generateEvent = function () {
-            var result = this.mapper.generateEvent('blah/{id}', 'get');
-            chai_1.expect(result.http.method).to.eq('get');
-            chai_1.expect(result.http.path).to.eq('blah/{id}');
-        };
-        PluginTest.prototype.generate = function () {
-            var result = this.mapper.generateEvent('blah/{id}', 'get');
-            chai_1.expect(result.http.method).to.eq('get');
-            chai_1.expect(result.http.path).to.eq('blah/{id}');
-        };
-        return PluginTest;
-    }());
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "functionHandler", null);
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "functionName", null);
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "generateEvent", null);
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "generate", null);
-    PluginTest = __decorate([
-        mocha_typescript_1.suite
-    ], PluginTest);
-});
-describe('Generate javascript handler', function () {
-    var PluginTest = (function () {
-        function PluginTest() {
-        }
-        PluginTest.prototype.before = function () {
-            try {
-                execSync('mkdir -p ./output');
-                execSync('rm ./output/*.js');
-            }
-            catch (err) {
-                console.log(err.message);
-            }
-            this.mapper = new mapper_1.Mapper(swagger, functions, './output', console.log);
-        };
-        PluginTest.prototype.generateHandlerFile = function () {
-            this.mapper.generate();
-            var file = './output/postBlahVthaId.js';
-            var result = fs.existsSync(file);
-            chai_1.expect(result).to.eq(true);
-        };
-        PluginTest.prototype.generateHandlerLength = function () {
-            var result = this.mapper.generate();
-            chai_1.expect(result).to.have.property('postBlahVthaId');
-        };
-        PluginTest.prototype.generateHandler = function () {
-            var result = this.mapper.generate();
-            chai_1.expect(result.postBlahVthaId.handler).to.eq('postBlahVthaId.main');
-        };
-        return PluginTest;
-    }());
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "generateHandlerFile", null);
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "generateHandlerLength", null);
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "generateHandler", null);
-    PluginTest = __decorate([
-        mocha_typescript_1.suite
-    ], PluginTest);
-});
-describe('map swagger to http events', function () {
-    var PluginTest = (function () {
-        function PluginTest() {
-        }
-        PluginTest.prototype.before = function () {
-            this.mapper = new mapper_1.Mapper(swagger, functions, '', function (s) { });
-            this.mapper.map();
-        };
-        PluginTest.prototype.mapBlahVthaId = function () {
-            var fn = functions.postBlahVthaId;
-            chai_1.expect(fn.events).to.not.be.empty;
-        };
-        PluginTest.prototype.mapVtha = function () {
-            var fn = functions.vthaGet;
-            chai_1.expect(fn.events).to.be.empty;
-        };
-        PluginTest.prototype.hasPost = function () {
-            var fn = functions.postBlahVthaId;
-            chai_1.expect(fn.events[0].http.method).to.eq('post');
-        };
-        PluginTest.prototype.hasPath = function () {
-            var fn = functions.postBlahVthaId;
-            chai_1.expect(fn.events[0].http.path).to.eq('/blah/vtha/{id}');
-        };
-        return PluginTest;
-    }());
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "mapBlahVthaId", null);
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "mapVtha", null);
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "hasPost", null);
-    __decorate([
-        mocha_typescript_1.test
-    ], PluginTest.prototype, "hasPath", null);
-    PluginTest = __decorate([
-        mocha_typescript_1.suite
-    ], PluginTest);
-});
+var MapTest = (function () {
+    function MapTest() {
+    }
+    MapTest.prototype.before = function () {
+        this.definitions = fn.map(swagger.paths, functions);
+    };
+    MapTest.prototype.mapBlahVthaId = function () {
+        var fn = this.definitions.postBlahVthaId;
+        chai_1.expect(fn.events).to.not.be.empty;
+    };
+    MapTest.prototype.mapVtha = function () {
+        var fn = this.definitions.vthaGet;
+        chai_1.expect(fn.events).to.be.empty;
+    };
+    MapTest.prototype.hasPost = function () {
+        var fn = functions.postBlahVthaId;
+        chai_1.expect(fn.events[0].http.method).to.eq('post');
+    };
+    MapTest.prototype.hasPath = function () {
+        var fn = functions.postBlahVthaId;
+        chai_1.expect(fn.events[0].http.path).to.eq('/blah/vtha/{id}');
+    };
+    MapTest.prototype.replacesHttp = function () {
+        var fn = functions.postBlahVthaId;
+        chai_1.expect(fn.events[0].http).to.not.eq('blah');
+    };
+    return MapTest;
+}());
+__decorate([
+    mocha_typescript_1.test
+], MapTest.prototype, "mapBlahVthaId", null);
+__decorate([
+    mocha_typescript_1.test
+], MapTest.prototype, "mapVtha", null);
+__decorate([
+    mocha_typescript_1.test
+], MapTest.prototype, "hasPost", null);
+__decorate([
+    mocha_typescript_1.test
+], MapTest.prototype, "hasPath", null);
+__decorate([
+    mocha_typescript_1.test
+], MapTest.prototype, "replacesHttp", null);
+MapTest = __decorate([
+    mocha_typescript_1.suite
+], MapTest);
