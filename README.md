@@ -9,13 +9,25 @@ If you don't have a serverless project, create one now:
 ```
 sls create -t aws-nodejs --path MyService
 cd MyService
-yarn init
+
+```
+then
+```
+yarn init 
+```
+or
+```
+npm init
 ```
 
 Inside your serverless project directory:
 
 ```
-yarn add swagger_serverless
+yarn add serverless_swagger
+```
+or
+```
+npm install serverless_swagger
 ```
 
 Add the following to serverless.yml:
