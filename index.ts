@@ -89,6 +89,7 @@ class ServerlessSwaggerPlugin {
 
   writeSlsFunctions(definitions: {[fn:string]: Definition}) {
     let config = this.loadSls()
+    config.functions = config.functions || {};
     _.merge(config.functions, definitions);
 
     fs.writeFileSync('serverless.yml', yaml.safeDump(config));
