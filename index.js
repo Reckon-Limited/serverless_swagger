@@ -82,6 +82,7 @@ var ServerlessSwaggerPlugin = (function () {
     };
     ServerlessSwaggerPlugin.prototype.writeSlsFunctions = function (definitions) {
         var config = this.loadSls();
+        config.functions = config.functions || {};
         _.merge(config.functions, definitions);
         fs.writeFileSync('serverless.yml', yaml.safeDump(config));
     };

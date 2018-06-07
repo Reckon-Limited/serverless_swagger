@@ -1,7 +1,9 @@
 "use strict";
 var _ = require("lodash");
 var fs = require("fs");
-function log(s) { }
+function log(s) {
+    console.info(s);
+}
 function bindLog(fn) {
     this.log = fn;
 }

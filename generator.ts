@@ -15,7 +15,9 @@ export interface Definition {
   events: Array<HttpEvent>
 }
 
-function log(s: string) {}
+function log(s: string) {
+  console.info(s);
+}
 
 export function bindLog(fn: {(msg: string): void}) {
   this.log = fn;
