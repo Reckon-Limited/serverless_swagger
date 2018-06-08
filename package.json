@@ -1,11 +1,11 @@
 {
-  "name": "serverless_swagger",
-  "version": "1.0.3",
+  "name": "serverless_framework_swagger_integration",
+  "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Reckon-Limited/serverless_swagger"
+    "url": "https://github.com/obender/serverless_swagger"
   },
   "dependencies": {
     "@types/chai": "^3.4.34",
