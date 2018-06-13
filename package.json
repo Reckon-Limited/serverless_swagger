@@ -6,7 +6,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/obender/serverless_swagger"
-  },"keywords": [
+  },
+  "keywords": [
     "swagger",
     "serverless",
     "import swagger",
@@ -29,6 +30,6 @@
     "typescript": "^2.1.4"
   },
   "scripts": {
-    "dev-test-watch": "mocha-typescript-watch"
+    "dev": "mocha-typescript-watch"
   }
 }
