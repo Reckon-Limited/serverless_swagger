@@ -1,56 +1,64 @@
-import _ = require('lodash');
-
-import fs   = require('fs');
-import yaml = require('js-yaml');
+import _ = require("lodash");
+import fs = require("fs");
+import dsk = require("path");
+import yaml = require("js-yaml");
 
 export interface HttpEvent {
   http: {
-    method: string,
-    path: string
-  }
-}
-
-export interface Definition {
-  handler: string
-  events: Array<HttpEvent>
-}
-
-function log(s: string) {}
-
-export function bindLog(fn: {(msg: string): void}) {
-  this.log = fn;
-}
-
-export function definition(handler: string, url: string, method: string): Definition {
-  return {
-    handler: `${handler}`,
-    events: [
-      httpEvent(url, method)
-    ]
+    method: string;
+    path: string;
   };
 }
 
-export function handler(namespace: string, name: string) {
-  if (namespace == '') {
-    return `${name}.main`;
+export interface Definition {
+  handler: string;
+  events: Array<HttpEvent>;
+}
+
+function log(s: string) {
+  console.info(s);
+}
+
+export function bindLog(fn: { (msg: string): void }) {
+  this.log = fn;
+}
+
+export function definition(
+  handler: string,
+  url: string,
+  method: string
+): Definition {
+  return {
+    handler: `${handler}`,
+    events: [httpEvent(url, method)]
+  };
+}
+
+export function handler(namespace: string, name: string, dir: string) {
+  let result = `${name}.main`;
+
+  if (namespace == "") {
+    if (dir) return dsk.join(dir, result);
+    else return result;
   } else {
-    return `${namespace}/${name}.main`;
+    if (dir) return dsk.join(namespace, dir, result);
+    else return dsk.join(namespace, result);
   }
 }
 
-export function httpEvent(url: string, method: string):HttpEvent {
+export function httpEvent(url: string, method: string): HttpEvent {
   return {
     http: {
       method: method,
       path: url
     }
-  }
+  };
 }
 
-export function name(url:string, method: string) {
+export function name(url: string, method: string) {
   let m = _.upperFirst(method);
   // let n = url.replace(/{(.*?)}/g, '');
-  return _.camelCase(`${m} ${url}`)
+  return _.camelCase(`${m} ${url}`);
 }
 
 export function src(name: string) {
@@ -63,46 +71,56 @@ module.exports.main = (event, context, callback) => {\n\
     }),\n\
   };\n\
   callback(null, response);\n\
-};`
+};`;
 }
 
+export function writeHandler(path: string, name: string, dir: string) {
+  let file = "";
 
-export function writeHandler(path: string, name: string) {
-  let file = `${path}/${name}.js`
+  if (dir) {
+    dir = dsk.join(path, dir);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    file = dsk.join(dir, name + ".js");
+  } else {
+    file = path + "/" + name + ".js";
+  }
 
   if (fs.existsSync(file)) {
-    log(`Function handler exists ${name}`);
+    log("Function handler exists " + name);
   } else {
-    log(`Creating function handler ${name}`);
+    log("Creating function handler " + name);
     fs.writeFileSync(file, src(name));
   }
 }
 
-export function generate(swaggerPaths: any, namespace: string, outputPath: string): {[fn:string]: Definition} {
-  let functions:{[key: string]: any} = {}
+export function generate(
+  swaggerPaths: any,
+  namespace: string,
+  outputPath: string
+): { [fn: string]: Definition } {
+  let functions: { [key: string]: any } = {};
 
   _.each(swaggerPaths, (path: Array<any>, url: string) => {
     _.each(path, (options, method: string) => {
-
+      let dir = _.camelCase(options ? options.tags[0] : null);
       let fn = name(url, method);
-      let hn = handler(namespace, fn);
-
-      let def = definition(hn, url, method)
-
-      writeHandler(outputPath, fn);
-
-      functions[fn] = def
-    })
+      let hn = handler(namespace, fn, dir);
+      let def = definition(hn, url, method);
+      writeHandler(outputPath, fn, dir);
+      functions[fn] = def;
+    });
   });
 
   return functions;
 }
 
 export function mapDefinitionEvent(definition: Definition, event: HttpEvent) {
-  let match = _.find(definition.events, (e) => {
-    return e.hasOwnProperty('http')
+  let match = _.find(definition.events, e => {
+    return e.hasOwnProperty("http");
   });
-  if(match){
+  if (match) {
     let index = _.indexOf(definition.events, match);
     definition.events.splice(index, 1, event);
   } else {
@@ -112,17 +130,16 @@ export function mapDefinitionEvent(definition: Definition, event: HttpEvent) {
 }
 
 export function map(swaggerPaths: any, functions: any) {
-  let definitions = _.clone(functions)
+  let definitions = _.clone(functions);
 
   _.each(swaggerPaths, (path: Array<any>, url: string) => {
     _.each(path, (options, method: string) => {
-
       let fn = name(url, method);
       let definition = definitions[fn];
 
       if (!definition) {
-        log(`Missing Handler: ${fn}`)
-        return false
+        log(`Missing Handler: ${fn}`);
+        return false;
       }
 
       let event = httpEvent(url, method);
@@ -130,7 +147,7 @@ export function map(swaggerPaths: any, functions: any) {
       definitions[fn] = mapDefinitionEvent(definition, event);
 
       log(`Mapped Handler: ${fn} - ${method} - ${url}`);
-    })
+    });
   });
 
   return definitions;

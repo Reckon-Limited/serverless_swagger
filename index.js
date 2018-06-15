@@ -26,7 +26,7 @@ var ServerlessSwaggerPlugin = (function () {
         generator_1.bindLog(this.log);
         this.commands = {
             "swagger": {
-                usage: 'Build an ECS cluster',
+                usage: 'Generate aws lamda functions defenition from swagger file',
                 lifecycleEvents: ['run']
             }
         };
@@ -82,6 +82,7 @@ var ServerlessSwaggerPlugin = (function () {
     };
     ServerlessSwaggerPlugin.prototype.writeSlsFunctions = function (definitions) {
         var config = this.loadSls();
+        config.functions = config.functions || {};
         _.merge(config.functions, definitions);
         fs.writeFileSync('serverless.yml', yaml.safeDump(config));
     };

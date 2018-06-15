@@ -23,18 +23,18 @@ npm init
 Inside your serverless project directory:
 
 ```
-yarn add serverless_swagger
+yarn add serverless_framework_swagger_integration
 ```
 or
 ```
-npm install serverless_swagger
+npm install serverless_framework_swagger_integration
 ```
 
 Add the following to serverless.yml:
 
 ```
 plugins:
-  - serverless_swagger
+  - serverless_framework_swagger_integration
 ```
 
 ## Configuration ##

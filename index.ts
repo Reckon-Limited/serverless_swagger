@@ -23,7 +23,7 @@ class ServerlessSwaggerPlugin {
 
     this.commands = {
       "swagger": {
-        usage: 'Build an ECS cluster',
+        usage: 'Generate aws lamda functions defenition from swagger file',
         lifecycleEvents: ['run']
       }
     };
@@ -89,6 +89,7 @@ class ServerlessSwaggerPlugin {
 
   writeSlsFunctions(definitions: {[fn:string]: Definition}) {
     let config = this.loadSls()
+    config.functions = config.functions || {};
     _.merge(config.functions, definitions);
 
     fs.writeFileSync('serverless.yml', yaml.safeDump(config));
