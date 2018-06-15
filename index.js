@@ -26,7 +26,7 @@ var ServerlessSwaggerPlugin = (function () {
         generator_1.bindLog(this.log);
         this.commands = {
             "swagger": {
-                usage: 'Build an ECS cluster',
+                usage: 'Generate aws lamda functions defenition from swagger file',
                 lifecycleEvents: ['run']
             }
         };

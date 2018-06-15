@@ -23,7 +23,7 @@ class ServerlessSwaggerPlugin {
 
     this.commands = {
       "swagger": {
-        usage: 'Build an ECS cluster',
+        usage: 'Generate aws lamda functions defenition from swagger file',
         lifecycleEvents: ['run']
       }
     };
